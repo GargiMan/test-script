@@ -20,10 +20,10 @@ Exit status:
  1 if problems with script options or directory
 
 Color output:
- cyan	    directory name
- green	    correct test
- yellow	  maybe incorrect test
- red     	incorrect test
+ cyan     directory name
+ green    correct test
+ yellow   maybe incorrect test
+ red      incorrect test
 
 Packages used: make, valgrind, grep, awk
 ```
