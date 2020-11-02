@@ -1,3 +1,4 @@
+```
 Script for project testing ~ by Gargi
 Usage: ./test.sh [OPTION]... [NAME]
 
@@ -25,3 +26,4 @@ Color output:
  red     	incorrect test
 
 Packages used: make, valgrind, grep, awk
+```
