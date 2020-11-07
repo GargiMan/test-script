@@ -84,7 +84,7 @@ while [ $# -gt 0 ]; do
                 errorexit "Directory '$2' does not exist"
             fi
             DIRFIND=$2
-            cd "$DIRFIND" || CODE=1 && errorexit "You do not have permissions to enter '$DIRFIND' directory"
+            cd "$DIRFIND" || CODE=1 | errorexit "You do not have permissions to enter '$DIRFIND' directory"
             shift
             shift
             ;;
