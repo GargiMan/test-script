@@ -84,7 +84,7 @@ while [ $# -gt 0 ]; do
                 errorexit "Directory '$2' does not exist"
             fi
             DIRFIND=$2
-            cd "$DIRFIND" || CODE=1 | errorexit "You do not have permissions to enter '$DIRFIND' directory"
+            cd "$DIRFIND" || CODE=1 && errorexit "You do not have permissions to enter '$DIRFIND' directory"
             shift
             shift
             ;;
@@ -100,7 +100,7 @@ while [ $# -gt 0 ]; do
 done
 
 DIRS=$(find * -maxdepth 0 -type d 2>/dev/null)
-if [ ! -z $DIRARG ] && [ ! -d "$DIRARG" ]; then errorexit "Test directory '$DIRARG' does not exist"; fi
+if [ -n "$DIRARG" ] && [ ! -d "$DIRARG" ]; then errorexit "Test directory '$DIRARG' does not exist"; fi
 if [ -z "$DIRS" ]; then errorexit "No test directories found in '$DIRFIND'"; fi
 
 echo "$DIRS" | while IFS= read -r DIR; do 
