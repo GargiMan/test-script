@@ -9,11 +9,11 @@ Directory NAME must be same as executable file (without suffix and extension) ma
 Custom file suffix, extensions or options can be modified at start of script file.
 
 Options list:
-  --clean	      clean files with 'make clean' and delete files created by this script (in NAME directory)
-  --dir [DIR]	  directory where to look for directories for testing
-  		            without this option, current directory will be used
-  --skip	      skip output compare
-  --help	      display this help and exit
+  --clean         clean files with 'make clean' and delete files created by this script (in NAME directory)
+  --dir [DIR]     directory where to look for directories for testing
+                    without this option, current directory will be used
+  --skip          skip output compare
+  --help          display this help and exit
 
 Exit status:
  0 if OK
