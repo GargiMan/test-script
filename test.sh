@@ -59,7 +59,7 @@ while [ $# -gt 0 ]; do
             printf "Exit status:\n"
             printf " 0 if OK\n"
             printf " 1 if problems with script options or directory\n\n"
-            printf "Color output:\n"
+            printf "Color output: (can be disabled in script file)\n"
             color "cyan"
             printf "cyan"
             color
