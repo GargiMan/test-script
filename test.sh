@@ -49,7 +49,7 @@ while [ $# -gt 0 ]; do
             printf "Executing without any options script run tests in all directories in current directory.\n"
             printf "With NAME passed in arguments, script will run tests only once in 'NAME' directory.\n"
             printf "Directory NAME must be same as executable file (without suffix and extension) made by Makefile.\n"
-            printf "Custom file suffix, extensions or options can be modified at start of script file.\n\n"
+            printf "Custom file suffix, extensions or other options can be modified at beginning of script file.\n\n"
             printf "Options list:\n"
             printf "  --clean\t clean files with 'make clean' and delete files created by this script (in NAME directory)\n"
             printf "  --dir [DIR]\t directory where to look for directories for testing\n"
