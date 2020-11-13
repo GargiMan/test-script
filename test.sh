@@ -7,6 +7,7 @@
 
 # User options:
 
+COLOR=1                 #colors 0-off X-on
 EXECSUFFIX="-test"      #executable files suffix
 EXECEXT=""              #executable files extension
 OUTEXT=".output"        #output files extension
@@ -21,8 +22,21 @@ DIRFIND="$PWD"
 DIRARG=""
 CODE=0
 
-errorexit() { 
-    printf "\e[1;91mError: %s\n\e[0;39m" "$*" >&2
+color() {
+    if [ "$COLOR" -eq 0 ]; then return; fi
+    if [ -z $1 ]; then printf "\e[0;39m"; return; fi
+
+    if [ "$1" = "red" ]; then printf "\e[1;91m"
+    elif [ "$1" = "yellow" ]; then printf "\e[1;93m"
+    elif [ "$1" = "green" ]; then printf "\e[1;92m" 
+    elif [ "$1" = "cyan" ]; then printf "\e[1;96m"
+    fi
+}
+
+errorexit() {
+    color "red"
+    printf "Error: %s\n" "$*" >&2
+    color
     exit $CODE
 }
 
@@ -41,15 +55,27 @@ while [ $# -gt 0 ]; do
             printf "  --dir [DIR]\t directory where to look for directories for testing\n"
             printf "  \t\t   without this option, current directory will be used\n"
             printf "  --skip\t skip output compare\n"
-            printf "  --help\t display this help and exit\n\n"
+            printf "  --help\t display this help and exit\n\n" 
             printf "Exit status:\n"
             printf " 0 if OK\n"
             printf " 1 if problems with script options or directory\n\n"
             printf "Color output:\n"
-            printf "\e[1;96mcyan\e[0;39m\tdirectory name\n"
-            printf "\e[1;92mgreen\e[0;39m\tcorrect test\n"
-            printf "\e[1;93myellow\e[0;39m\tmaybe incorrect test\n"
-            printf "\e[1;91mred\e[0;39m\tincorrect test\n\n"
+            color "cyan"
+            printf "cyan"
+            color
+            printf "\tdirectory name\n"
+            color "green"
+            printf "green"
+            color
+            printf "\tcorrect test\n"
+            color "yellow"
+            printf "yellow"
+            color
+            printf "\tmaybe incorrect test\n"
+            color "red"
+            printf "red"
+            color
+            printf "\tincorrect test\n\n"
             printf "Packages used: make, valgrind, grep, awk\n"
             exit $CODE
             ;;
@@ -92,6 +118,9 @@ while [ $# -gt 0 ]; do
             if [ -n "$DIRARG" ]; then
                 CODE=1
                 errorexit "Option '$1' does not exist or test directory was already set to '$DIRARG'"
+            elif [ "$1" = "--clear" ]; then
+                CODE=1
+                errorexit "Option '$1' does not exist, correct alternative is option '--clean"
             fi
             DIRARG=$(basename "$1") 
             shift
@@ -109,19 +138,26 @@ echo "$DIRS" | while IFS= read -r DIR; do
 
         printf "\n"
         echo "======================================================================"
-        echo "Directory: \e[1;96m$DIR\e[0;39m"
+        printf "Directory: "
+        color "cyan"
+        printf "$DIR\n"
+        color
 
         cd "$DIR" 2>/dev/null 
         EXTCODE=$?
         if [ "$EXTCODE" -ne 0 ]; then
-            echo "\e[1;93mYou do not have permissions to enter '$DIR' directory\e[0;39m" >&2
+            color "yellow"
+            printf "You do not have permissions to enter '$DIR' directory" >&2
+            color
             continue
         fi
 
         echo "-------------------make-------------------"
 
         if [ ! -f "Makefile" ]; then 
-            echo "\e[1;93mDirectory does not contain Makefile\e[0;39m" >&2
+            color "yellow"
+            printf "Directory does not contain Makefile\n" >&2
+            color
             cd ..
             continue
         fi
@@ -129,11 +165,20 @@ echo "$DIRS" | while IFS= read -r DIR; do
         make clean >/dev/null
         EXTCODE=$?
         if [ "$EXTCODE" -eq 0 ]; then 
-            echo "Make clean: \e[1;92mok \e[0;39m"
+            printf "Make clean: "
+            color "green"
+            printf "ok\n"
+            color
         elif [ "$EXTCODE" -eq 2 ]; then
-            echo "Make clean: \e[1;33mmissing \e[0;39m"
+            printf "Make clean: "
+            color "yellow"
+            printf "missing\n"
+            color
         else 
-            echo "Make clean: \e[1;91merror \e[0;39m"
+            printf "Make clean: "
+            color "red"
+            printf "error\n"
+            color
         fi
 
         if [ "$CLEAN" -eq 1 ]; then
@@ -142,9 +187,15 @@ echo "$DIRS" | while IFS= read -r DIR; do
 
             if [ -f "$DIR""$MYSUFFIX""$OUTEXT" ]; then
                 rm -f "$DIR""$MYSUFFIX""$OUTEXT" 
-                echo "Delete $DIR$MYSUFFIX$OUTEXT: \e[1;92mok \e[0;39m"
+                printf "Delete $DIR$MYSUFFIX$OUTEXT: "
+                color "green"
+                printf "ok\n"
+                color
             else 
-                echo "Delete $DIR$MYSUFFIX$OUTEXT: \e[1;33mnot found \e[0;39m"
+                printf "Delete $DIR$MYSUFFIX$OUTEXT: "
+                color "yellow"
+                printf "not found\n"
+                color
             fi
 
             cd ..
@@ -161,16 +212,24 @@ echo "$DIRS" | while IFS= read -r DIR; do
         fi
         
         if [ "$EXTCODE" -eq 0 ]; then
-            echo "Make executable file: \e[1;92mok \e[0;39m"
+            printf "Make executable file: " 
+            color "green"
+            printf "ok\n"
+            color
         else
             printf "\n"
-            echo "Make executable file: \e[1;91merror \e[0;39m"
+            printf "Make executable file: "
+            color "red"
+            printf "error\n"
+            color
             cd ..
             continue
         fi
 
         if [ ! -f "$DIR""$EXECSUFFIX""$EXECEXT" ]; then 
-            echo "\e[1;93mExecutive file '$DIR$EXECSUFFIX$EXECEXT' does not exist\e[0;39m" >&2
+            color "red"
+            printf "Executive file '$DIR$EXECSUFFIX$EXECEXT' does not exist\n" >&2
+            color
             cd ..
             continue
         fi
@@ -180,34 +239,55 @@ echo "$DIRS" | while IFS= read -r DIR; do
         valgrind -q ./"$DIR""$EXECSUFFIX""$EXECEXT" 2>&1 | grep -v 'error calling PR_SET_PTRACER, vgdb might block' | grep '==[0-9][0-9][0-9][0-9]=='
         EXTCODE=$?
         if [ "$EXTCODE" -eq 1 ]; then
-            echo "Memory access (alloc): \e[1;92mok \e[0;39m"
+            printf "Memory access (alloc): "
+            color "green"
+            printf "ok\n"
+            color
         else 
-            echo "Memory access (alloc): \e[1;91merror \e[0;39m"
+            printf "Memory access (alloc): "
+            color "red"
+            printf "error\n"
+            color
         fi
 
         valgrind ./"$DIR""$EXECSUFFIX""$EXECEXT" 2>&1 | grep 'All heap blocks were freed -- no leaks are possible' >/dev/null
         EXTCODE=$?
         if [ "$EXTCODE" -eq 0 ]; then
-        	echo "Memory leaks (free): \e[1;92mok \e[0;39m" 
+        	printf "Memory leaks (free): "
+            color "green"
+            printf "ok\n"
+            color
         else
             valgrind ./"$DIR""$EXECSUFFIX""$EXECEXT" 2>&1 | awk '/HEAP/,/suppressed: .+ blocks$/'
-            echo "Memory leaks (free): \e[1;91merror \e[0;39m" 
+            printf "Memory leaks (free): "
+            color "red"
+            printf "error\n"
+            color
         fi
 
         echo "-------------------test-------------------"
 
         if [ "$SKIP" -eq 1 ]; then
-            echo "Output files: \e[1;33mskipped \e[0;39m"
+            printf "Output files: "
+            color "yellow"
+            printf "skipped\n"
+            color
         else 
             ./"$DIR""$EXECSUFFIX""$EXECEXT" >"$DIR""$MYSUFFIX""$OUTEXT"
 
 		    diff -q "$DIR"*"$OUTEXT" >/dev/null 2>&1
             EXTCODE=$?
             if [ "$EXTCODE" -eq 0 ]; then
-                echo "Output files: \e[1;92mok \e[0;39m"
+                printf "Output files: "
+                color "green"
+                printf "ok\n"
+                color
             else 
                 diff -u "$DIR"*"$OUTEXT"
-                echo "Output files: \e[1;91mnot same \e[0;39m"
+                printf "Output files: "
+                color "red"
+                printf "not same\n"
+                color
             fi
         fi
 
