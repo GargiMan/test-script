@@ -1,4 +1,6 @@
 #!/bin/sh
+export POSIXLY_CORRECT=yes
+export LC_ALL=C
 #---------------------------------------INFO-------------------------------------------------------------------
 
 # Script for project testing
@@ -24,7 +26,7 @@ CODE=0
 
 color() {
     if [ "$COLOR" -eq 0 ]; then return; fi
-    if [ -z $1 ]; then printf "\e[0;39m"; return; fi
+    if [ -z "$1" ]; then printf "\e[0;39m"; return; fi
 
     if [ "$1" = "red" ]; then printf "\e[1;91m"
     elif [ "$1" = "yellow" ]; then printf "\e[1;93m"
@@ -110,7 +112,10 @@ while [ $# -gt 0 ]; do
                 errorexit "Directory '$2' does not exist"
             fi
             DIRFIND=$2
-            cd "$DIRFIND" || CODE=1 | errorexit "You do not have permissions to enter '$DIRFIND' directory"
+            if ! cd "$DIRFIND"; then
+                CODE=1
+                errorexit "You do not have permissions to enter '$DIRFIND' directory"
+            fi
             shift
             shift
             ;;
@@ -128,7 +133,7 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-DIRS=$(find * -maxdepth 0 -type d 2>/dev/null)
+DIRS=$(find . -maxdepth 1 -type d 2>/dev/null | grep -oE "[^./].*")
 if [ -n "$DIRARG" ] && [ ! -d "$DIRARG" ]; then errorexit "Test directory '$DIRARG' does not exist"; fi
 if [ -z "$DIRS" ]; then errorexit "No test directories found in '$DIRFIND'"; fi
 
@@ -140,14 +145,12 @@ echo "$DIRS" | while IFS= read -r DIR; do
         echo "======================================================================"
         printf "Directory: "
         color "cyan"
-        printf "$DIR\n"
+        printf "%s\n" "$DIR"
         color
 
-        cd "$DIR" 2>/dev/null 
-        EXTCODE=$?
-        if [ "$EXTCODE" -ne 0 ]; then
+        if ! cd "$DIR" 2>/dev/null; then
             color "yellow"
-            printf "You do not have permissions to enter '$DIR' directory" >&2
+            printf "You do not have permissions to enter '%s' directory" "$DIR" >&2
             color
             continue
         fi
@@ -187,12 +190,12 @@ echo "$DIRS" | while IFS= read -r DIR; do
 
             if [ -f "$DIR""$MYSUFFIX""$OUTEXT" ]; then
                 rm -f "$DIR""$MYSUFFIX""$OUTEXT" 
-                printf "Delete $DIR$MYSUFFIX$OUTEXT: "
+                printf "Delete %s: " "$DIR$MYSUFFIX$OUTEXT"
                 color "green"
                 printf "ok\n"
                 color
             else 
-                printf "Delete $DIR$MYSUFFIX$OUTEXT: "
+                printf "Delete %s: " "$DIR$MYSUFFIX$OUTEXT"
                 color "yellow"
                 printf "not found\n"
                 color
@@ -228,7 +231,7 @@ echo "$DIRS" | while IFS= read -r DIR; do
 
         if [ ! -f "$DIR""$EXECSUFFIX""$EXECEXT" ]; then 
             color "red"
-            printf "Executive file '$DIR$EXECSUFFIX$EXECEXT' does not exist\n" >&2
+            printf "Executive file '%s' does not exist\n" "$DIR$EXECSUFFIX$EXECEXT" >&2
             color
             cd ..
             continue
@@ -275,9 +278,7 @@ echo "$DIRS" | while IFS= read -r DIR; do
         else 
             ./"$DIR""$EXECSUFFIX""$EXECEXT" >"$DIR""$MYSUFFIX""$OUTEXT"
 
-		    diff -q "$DIR"*"$OUTEXT" >/dev/null 2>&1
-            EXTCODE=$?
-            if [ "$EXTCODE" -eq 0 ]; then
+            if ! diff -q "$DIR"*"$OUTEXT" >/dev/null 2>&1; then
                 printf "Output files: "
                 color "green"
                 printf "ok\n"
