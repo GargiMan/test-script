@@ -47,7 +47,7 @@ while [ $# -gt 0 ]; do
         --help)
             printf "Script for project testing ~ by Gargi\n"
             printf "Usage: ./test.sh [OPTION]... [NAME]\n\n"
-            printf "Basic operations make, memory, tests for projects testing.\n"
+            printf "Basic operations make, memory(valgrind), tests for projects testing.\n"
             printf "Executing without any options script run tests in all directories in current directory.\n"
             printf "With NAME passed in arguments, script will run tests only once in 'NAME' directory.\n"
             printf "Directory NAME must be same as executable file (without suffix and extension) made by Makefile.\n"
@@ -78,7 +78,6 @@ while [ $# -gt 0 ]; do
             printf "red"
             color
             printf "\tincorrect test\n\n"
-            printf "Packages used: make, valgrind, grep, awk\n"
             exit $CODE
             ;;
         --clean)

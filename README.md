@@ -2,7 +2,7 @@
 Script for project testing ~ by Gargi
 Usage: ./test.sh [OPTION]... [NAME]
 
-Basic operations make, memory, tests for projects testing.
+Basic operations make, memory(valgrind), tests for projects testing.
 Executing without any options script run tests in all directories in current directory.
 With NAME passed in arguments, script will run tests only once in 'NAME' directory.
 Directory NAME must be same as executable file (without suffix and extension) made by Makefile.
@@ -24,6 +24,4 @@ Color output: (can be disabled in script file)
  green    correct test
  yellow   maybe incorrect test
  red      incorrect test
-
-Packages used: make, valgrind, grep, awk
 ```
